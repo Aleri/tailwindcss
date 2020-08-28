@@ -1094,3 +1094,46 @@ test('you can deeply apply classes in a custom nested @atrule', () => {
     expect(result.warnings().length).toBe(0)
   })
 })
+
+test('you can apply complex utilities deeply nested', () => {
+  const input = `
+    .foo {
+      .bar {
+        .baz {
+          @apply group-hover:opacity-50 hover:font-bold;
+        }
+      }
+    }
+
+    .group:hover .group-hover\\:opacity-50 {
+      opacity: .5;
+    }
+  `
+
+  const expected = `
+    .group\:hover .foo {
+      .bar {
+        .baz {
+          opacity: .5;
+        }
+      }
+    }
+
+    .foo {
+      .bar {
+        .baz:hover {
+          font-weight: 700;
+        }
+      }
+    }
+
+    .group:hover .group-hover\\:opacity-50 {
+      opacity: .5;
+    }
+  `
+
+  return run(input).then(result => {
+    expect(result.css).toMatchCss(expected)
+    expect(result.warnings().length).toBe(0)
+  })
+})
